@@ -11,7 +11,7 @@ Dự án được xây dựng dựa trên một tech stack hiện đại và m�
 - **Ngôn ngữ lập trình:** Python
 - **Backend Framework:** FastAPI
 - **Frontend Framework:** Next.js
-- **Model phát hiện (Detection):** YOLOv8
+- **Model phát hiện (Detection):** YOLOv11
 - **Model nhận dạng (Recognition):** EasyOCR
 - **Thư viện xử lý ảnh:** OpenCV
 - **Đóng gói & Triển khai:** Docker
@@ -20,7 +20,7 @@ Dự án được xây dựng dựa trên một tech stack hiện đại và m�
 Dự án được thiết kế theo kiến trúc microservices, bao gồm 2 thành phần chính:
 1.  **Backend (FastAPI):**
     *   Cung cấp các API endpoint để xử lý yêu cầu nhận dạng.
-    *   Sử dụng YOLOv8 để phát hiện vị trí biển số, OpenCV để xử lý ảnh, và EasyOCR để nhận dạng ký tự.
+    *   Sử dụng YOLOv11 để phát hiện vị trí biển số, OpenCV để xử lý ảnh, và EasyOCR để nhận dạng ký tự.
 2.  **Frontend (Next.js):**
     *   Xây dựng giao diện người dùng trên nền tảng web, cho phép người dùng tải ảnh/video lên.
     *   Gửi yêu cầu đến Backend và hiển thị kết quả nhận dạng cho người dùng.
@@ -30,7 +30,7 @@ Hai thành phần này sẽ được đóng gói bằng Docker để đảm bả
 # Training model
 Với phạm vi của project, chúng ta cần phải có 2 model riêng biệt:
 
-- **Model detection**: Nhận diện vùng chứa biển số xe (object detection), sử dụng YOLOv8 để phát hiện vị trí biển số xe trong hình ảnh/video. Model này sẽ cho đầu ra là bounding box dùng để xác định vùng biển số xe, được thể hiện qua các tọa độ (x, y, width, height).
+- **Model detection**: Nhận diện vùng chứa biển số xe (object detection), sử dụng YOLOv11 để phát hiện vị trí biển số xe trong hình ảnh/video. Model này sẽ cho đầu ra là bounding box dùng để xác định vùng biển số xe, được thể hiện qua các tọa độ (x, y, width, height).
 
 - **Model recognition**: Model nhận dạng ký tự (OCR) trong vùng biển số đã được phát hiện. Model này sẽ cho đầu ra là chuỗi ký tự tương ứng với biển số xe.
 
