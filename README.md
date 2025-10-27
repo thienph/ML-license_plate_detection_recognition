@@ -1,51 +1,41 @@
-# Tổng quan Project
-Đây là project Machine Learning nhằm nhận diện biển số xe từ hình ảnh, video và video trực tiếp từ camera.
+# Training Component
 
-# Mục tiêu Project
-Mục tiêu của project là nhận diện được ký tự trên biển số xe trong các điều kiện khác nhau như góc chụp, ánh sáng, chất lượng hình ảnh/video. Do đó, project sẽ bao gồm các tính năng chính sau:
-- Nhận diện vị trí biển số xe trong hình ảnh/video.
-- Trích xuất và nhận diện ký tự trên biển số xe.
+Thư mục này chứa tất cả các tài nguyên liên quan đến việc huấn luyện và đánh giá các model machine learning cho dự án.
 
-# Technologies
-Dự án được xây dựng dựa trên một tech stack hiện đại và mạnh mẽ, bao gồm:
-- **Ngôn ngữ lập trình:** Python
-- **Backend Framework:** FastAPI
-- **Frontend Framework:** Next.js
-- **Model phát hiện (Detection):** YOLOv8
-- **Model nhận dạng (Recognition):** EasyOCR
-- **Thư viện xử lý ảnh:** OpenCV
-- **Đóng gói & Triển khai:** Docker
+## Dataset
+Gồm 2 phần chính:
+- [License Plate Detection Dataset](https://drive.google.com/file/d/1xchPXf7a1r466ngow_W_9bittRqQEf_T/view?usp=sharing): Dữ liệu ảnh xe có biển số với nhãn bounding box cho việc huấn luyện model nhận diện biển số xe.
 
-# Kiến trúc tổng quan
-Dự án được thiết kế theo kiến trúc microservices, bao gồm 2 thành phần chính:
-1.  **Backend (FastAPI):**
-    *   Cung cấp các API endpoint để xử lý yêu cầu nhận dạng.
-    *   Sử dụng YOLOv8 để phát hiện vị trí biển số, OpenCV để xử lý ảnh, và EasyOCR để nhận dạng ký tự.
-2.  **Frontend (Next.js):**
-    *   Xây dựng giao diện người dùng trên nền tảng web, cho phép người dùng tải ảnh/video lên.
-    *   Gửi yêu cầu đến Backend và hiển thị kết quả nhận dạng cho người dùng.
+- [Character Detection Dataset](https://drive.google.com/file/d/1bPux9J0e1mz-_Jssx4XX1-wPGamaS8mI/view?usp=sharing): Dữ liệu ảnh chứa các ký tự trên biển số với nhãn cho việc huấn luyện model nhận dạng ký tự.
 
-Hai thành phần này sẽ được đóng gói bằng Docker để đảm bảo tính nhất quán và dễ dàng triển khai.
+---
 
-# Training model
-Với phạm vi của project, chúng ta cần phải có 2 model riêng biệt:
+## Training Workflow
 
-- **Model detection**: Nhận diện vùng chứa biển số xe (object detection), sử dụng YOLOv8 để phát hiện vị trí biển số xe trong hình ảnh/video. Model này sẽ cho đầu ra là bounding box dùng để xác định vùng biển số xe, được thể hiện qua các tọa độ (x, y, width, height).
+Quá trình training được thực hiện trên Google Colab bằng cách sử dụng notebook `license_plate_training.ipynb`.
 
-- **Model recognition**: Model nhận dạng ký tự (OCR) trong vùng biển số đã được phát hiện. Model này sẽ cho đầu ra là chuỗi ký tự tương ứng với biển số xe.
+### 1. Environment Setup
+- **Nền tảng:** Google Colab
+- **Hardware:** GPU T4
 
-# Dataset
-Để huấn luyện các model, chúng ta cần chuẩn bị các dataset sau:
+### 2. Chuẩn bị
 
-- **Detection**: Dataset hình ảnh biển số xe để huấn luyện model nhận diện biển số xe. Dataset này bao gồm:
-1. Các file hình ảnh các phương tiện có biển số xe, trong ảnh có biển số xe được khoanh vùng rõ ràng và đa dạng các góc chụp, điều kiện ánh sáng, kích thước.
-2. Các file nhãn (label) tương ứng với các hình ảnh, trong đó mỗi nhãn bao gồm tọa độ bounding box của biển số xe trong ảnh. 
+1.  **Kích hoạt GPU:** Trước khi chạy, hãy đảm bảo bạn đã bật GPU cho Colab Runtime (`Runtime` -> `Change runtime type` -> `Hardware accelerator: GPU` -> `GPU type: T4`).
+2.  **Chuẩn bị Dataset:** Đảm bảo 2 file dataset của bạn đã được upload lên Google Drive theo đúng đường dẫn sau:
+    - `[Your Google Drive]/MyDrive/projects/license_plate_detection_recognition/training/dataset/LP_detection.zip`
+    - `[Your Google Drive]/MyDrive/projects/license_plate_detection_recognition/training/dataset/OCR.zip`
 
-- **Recognition**: Dataset ký tự trên biển số xe để huấn luyện model OCR. Dataset này bao gồm:
-1. Các file hình ảnh chứa biển số xe, trong đó các ký tự trên biển số xe được khoanh vùng rõ ràng.
-2. Các file nhãn (label) tương ứng với các hình ảnh, trong đó mỗi nhãn bao gồm chuỗi ký tự tương ứng với biển số xe.
+### 3. Thực hiện huấn luyện
 
-Dataset được chia 2 phần: training set (80%) và validation set (20%) để đánh giá hiệu suất của model trong quá trình huấn luyện.
+- Mở file `training/notebooks/license_plate_training.ipynb` trên Google Colab.
+- Chạy lần lượt các cell code từ trên xuống dưới.
+- Notebook sẽ tự động thực hiện các công việc:
+    - Cài đặt thư viện.
+    - Kết nối Google Drive.
+    - Sao chép và giải nén dataset.
+    - Tạo file cấu hình `data.yaml`.
+    - Bắt đầu quá trình huấn luyện model.
 
+### 4. Kết quả
 
-
+- Các model đã được huấn luyện và log của quá trình training sẽ được lưu vào thư mục `[Your Google Drive]/MyDrive/model_license_plate_runs` trên Google Drive của bạn.
