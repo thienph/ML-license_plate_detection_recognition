@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhận diện biển số xe - Camera</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.5em;
+            margin-bottom: 2px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 0.9em;
+        }
+
+        .content {
+            padding: 15px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: nowrap;
+            margin-bottom: 15px;
+            justify-content: center;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 10px;
+            overflow-x: auto;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: nowrap;
+            align-items: center;
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        button {
+            padding: 10px 15px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+
+        select {
+            padding: 10px;
+            font-size: 14px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            min-width: 200px;
+        }
+
+        .camera-section {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .camera-section {
+                flex-direction: column;
+            }
+        }
+
+        .video-container, .canvas-container {
+            flex: 1;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .video-container h3, .canvas-container h3 {
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        .canvas-container h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        video, canvas {
+            width: 100%;
+            max-width: 640px;
+            flex-grow: 1; /* Add this */
+            object-fit: cover; /* Add this */
+            border: 3px solid #667eea;
+            border-radius: 12px;
+            background: #000;
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .canvas-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            background: #fff3cd;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: #856404;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .loading .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #856404;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #dc3545;
+        }
+
+        .results {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .results h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .detection-card {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border-left: 5px solid #28a745;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .license-plate-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+            letter-spacing: 3px;
+        }
+
+        .confidence {
+            font-size: 1.2em;
+            color: #28a745;
+        }
+
+        .processing-time {
+            color: #6c757d;
+            font-style: italic;
+            margin-top: 10px;
+        }
+
+        .no-detection {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .auto-indicator {
+            display: none;
+            background: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            margin: 10px auto;
+            width: fit-content;
+            animation: pulse 2s infinite;
+        }
+
+        .auto-indicator.active {
+            display: block;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Hệ Thống Tự Nhận Diện Biển Số Xe</h1>
+            <p>Sử dụng camera smartphone/webcam, hoặc upload ảnh!</p>
+        </div>
+
+        <div class="content">
+            <div class="controls">
+                <div class="button-group">
+                    <button id="startCamera" class="btn-primary">
+                        📷 Bật Camera
+                    </button>
+                    <button id="stopCamera" class="btn-danger" disabled>
+                        ⏹️ Tắt Camera
+                    </button>
+                    <button id="capture" class="btn-success" disabled>
+                        📸 Chụp và Nhận diện
+                    </button>
+                    <button id="autoCapture" class="btn-info" disabled>
+                        🔄 Tự động (3s)
+                    </button>
+                    <select id="cameraSelect">
+                        <option value="">Chọn camera...</option>
+                    </select>
+                </div>
+                <div class="button-group">
+                    <button id="uploadBtn" class="btn-primary" style="background: #fd7e14;">
+                        📁 Upload Ảnh
+                    </button>
+                    <input type="file" id="fileInput" accept="image/jpeg,image/jpg,image/png,image/bmp" style="display: none;">
+                </div>
+            </div>
+
+            <div class="auto-indicator" id="autoIndicator">
+                🔄 Chế độ tự động đang bật
+            </div>
+
+            <div id="errorDiv"></div>
+
+            <div class="camera-section">
+                <div class="video-container">
+                    <video id="video" width="640" height="480" autoplay playsinline></video>
+                    <h3>📹 Camera trực tiếp</h3>
+                </div>
+                <div class="canvas-container">
+                    <canvas id="canvas" width="640" height="480"></canvas>
+                    <h3>📸 Ảnh đã chụp</h3>
+                </div>
+            </div>
+
+            <div class="loading" id="loading">
+                <span class="spinner"></span>
+                Đang xử lý ảnh...
+            </div>
+
+            <div class="results" id="results" style="display: none;">
+                <h3>Kết quả nhận diện</h3>
+                <div id="resultsContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE_URL = 'http://localhost:8000/api/v1';
+        
+        // DOM Elements
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const resultsDiv = document.getElementById('results');
+        const resultsContent = document.getElementById('resultsContent');
+        const loadingDiv = document.getElementById('loading');
+        const errorDiv = document.getElementById('errorDiv');
+        const cameraSelect = document.getElementById('cameraSelect');
+        const autoIndicator = document.getElementById('autoIndicator');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const fileInput = document.getElementById('fileInput');
+        
+        // Buttons
+        const startCameraBtn = document.getElementById('startCamera');
+        const stopCameraBtn = document.getElementById('stopCamera');
+        const captureBtn = document.getElementById('capture');
+        const autoCaptureBtn = document.getElementById('autoCapture');
+        
+        // State
+        let stream = null;
+        let autoInterval = null;
+        let totalDetections = 0;
+        let totalProcessingTime = 0;
+        let captureCount = 0;
+
+        // Initialize - Get available cameras
+        async function getCameras() {
+            try {
+                // Request permission first
+                await navigator.mediaDevices.getUserMedia({ video: true });
+                
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const cameras = devices.filter(device => device.kind === 'videoinput');
+                
+                cameraSelect.innerHTML = '<option value="">Chọn camera...</option>';
+                cameras.forEach((camera, index) => {
+                    const option = document.createElement('option');
+                    option.value = camera.deviceId;
+                    option.text = camera.label || `Camera ${index + 1}`;
+                    cameraSelect.appendChild(option);
+                });
+                
+                // Auto-select first camera
+                if (cameras.length > 0) {
+                    cameraSelect.value = cameras[0].deviceId;
+                }
+            } catch (error) {
+                showError('Không thể truy cập camera: ' + error.message);
+            }
+        }
+
+        // Start camera
+        async function startCamera() {
+            try {
+                const deviceId = cameraSelect.value;
+                const constraints = {
+                    video: {
+                        deviceId: deviceId ? { exact: deviceId } : undefined,
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 },
+                        facingMode: deviceId ? undefined : 'environment' // Use back camera on mobile
+                    }
+                };
+                
+                stream = await navigator.mediaDevices.getUserMedia(constraints);
+                video.srcObject = stream;
+                
+                // Update UI
+                startCameraBtn.disabled = true;
+                stopCameraBtn.disabled = false;
+                captureBtn.disabled = false;
+                autoCaptureBtn.disabled = false;
+                cameraSelect.disabled = true;
+                
+                clearError();
+                showMessage('✅ Camera đã sẵn sàng. Nhấn "Chụp và Nhận diện" để bắt đầu!', 'success');
+            } catch (error) {
+                showError('Không thể khởi động camera: ' + error.message);
+            }
+        }
+
+        // Stop camera
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+                video.srcObject = null;
+            }
+            
+            if (autoInterval) {
+                clearInterval(autoInterval);
+                autoInterval = null;
+                autoIndicator.classList.remove('active');
+            }
+            
+            // Update UI
+            startCameraBtn.disabled = false;
+            stopCameraBtn.disabled = true;
+            captureBtn.disabled = true;
+            autoCaptureBtn.disabled = true;
+            cameraSelect.disabled = false;
+        }
+
+        // Capture and recognize
+        async function captureAndRecognize() {
+            if (!stream) return;
+            
+            loadingDiv.classList.add('active');
+            clearError();
+            
+            try {
+                // Draw video frame to canvas
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                ctx.drawImage(video, 0, 0);
+                
+                // Convert canvas to blob
+                const blob = await new Promise(resolve => {
+                    canvas.toBlob(resolve, 'image/jpeg', 0.95);
+                });
+                
+                if (!blob) {
+                    throw new Error('Không thể chụp ảnh từ camera');
+                }
+                
+                // Send to API
+                const formData = new FormData();
+                formData.append('file', blob, 'capture.jpg');
+                
+                const response = await fetch(`${API_BASE_URL}/license-plate/recognize`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Lỗi từ server');
+                }
+                
+                const data = await response.json();
+                
+                // Draw bounding boxes on canvas
+                drawBoundingBoxes(data.detections);
+                
+                // Update stats
+                captureCount++;
+                totalDetections += data.detections.length;
+                totalProcessingTime += data.processing_time;
+                
+                // Display results
+                displayResults(data);
+                
+            } catch (error) {
+                showError('Lỗi khi nhận diện: ' + error.message);
+            } finally {
+                loadingDiv.classList.remove('active');
+            }
+        }
+
+        // Toggle auto capture
+        function toggleAutoCapture() {
+            if (autoInterval) {
+                // Stop auto capture
+                clearInterval(autoInterval);
+                autoInterval = null;
+                autoCaptureBtn.textContent = '🔄 Tự động (3s)';
+                autoCaptureBtn.classList.remove('btn-danger');
+                autoCaptureBtn.classList.add('btn-info');
+                autoIndicator.classList.remove('active');
+            } else {
+                // Start auto capture
+                autoInterval = setInterval(captureAndRecognize, 3000);
+                autoCaptureBtn.textContent = '⏸️ Dừng tự động';
+                autoCaptureBtn.classList.remove('btn-info');
+                autoCaptureBtn.classList.add('btn-danger');
+                autoIndicator.classList.add('active');
+                
+                // Capture immediately
+                captureAndRecognize();
+            }
+        }
+
+        // Draw bounding boxes on canvas
+        function drawBoundingBoxes(detections) {
+            if (!detections || detections.length === 0) return;
+            
+            // Get canvas dimensions
+            const canvasWidth = canvas.width;
+            const canvasHeight = canvas.height;
+            
+            // Draw each detection
+            detections.forEach((detection, index) => {
+                const [x1, y1, x2, y2] = detection.bbox;
+                const plateNumber = detection.plate_number || detection.license_plate || 'N/A';
+                const confidence = (detection.confidence * 100).toFixed(1);
+                
+                // Draw bounding box
+                ctx.strokeStyle = '#00ff00';
+                ctx.lineWidth = 6;
+                ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+                
+                // Draw background for text
+                const text = `${plateNumber} (${confidence}%)`;
+                ctx.font = 'bold 36px Arial';
+                const textWidth = ctx.measureText(text).width;
+                const textHeight = 48;
+                const padding = 12;
+                
+                // Background rectangle
+                ctx.fillStyle = 'rgba(0, 255, 0, 0.8)';
+                ctx.fillRect(x1, y1 - textHeight - padding, textWidth + padding * 2, textHeight + padding);
+                
+                // Draw text
+                ctx.fillStyle = '#000';
+                ctx.fillText(text, x1 + padding, y1 - padding - 8);
+                
+                // Draw corner markers for better visibility
+                const markerSize = 30;
+                ctx.strokeStyle = '#ffff00';
+                ctx.lineWidth = 6;
+                
+                // Top-left corner
+                ctx.beginPath();
+                ctx.moveTo(x1, y1 + markerSize);
+                ctx.lineTo(x1, y1);
+                ctx.lineTo(x1 + markerSize, y1);
+                ctx.stroke();
+                
+                // Top-right corner
+                ctx.beginPath();
+                ctx.moveTo(x2 - markerSize, y1);
+                ctx.lineTo(x2, y1);
+                ctx.lineTo(x2, y1 + markerSize);
+                ctx.stroke();
+                
+                // Bottom-left corner
+                ctx.beginPath();
+                ctx.moveTo(x1, y2 - markerSize);
+                ctx.lineTo(x1, y2);
+                ctx.lineTo(x1 + markerSize, y2);
+                ctx.stroke();
+                
+                // Bottom-right corner
+                ctx.beginPath();
+                ctx.moveTo(x2 - markerSize, y2);
+                ctx.lineTo(x2, y2);
+                ctx.lineTo(x2, y2 - markerSize);
+                ctx.stroke();
+            });
+        }
+
+        // Handle file upload
+        async function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // Validate file type
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/bmp'];
+            if (!validTypes.includes(file.type)) {
+                showError('File không hợp lệ. Chỉ chấp nhận: JPG, PNG, BMP');
+                fileInput.value = '';
+                return;
+            }
+            
+            // Validate file size (10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                showError('File quá lớn. Kích thước tối đa: 10MB');
+                fileInput.value = '';
+                return;
+            }
+            
+            loadingDiv.classList.add('active');
+            clearError();
+            
+            try {
+                // Display uploaded image on canvas
+                const img = new Image();
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    img.onload = function() {
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        ctx.drawImage(img, 0, 0);
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+                
+                // Send to API
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                const response = await fetch(`${API_BASE_URL}/license-plate/recognize`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Lỗi từ server');
+                }
+                
+                const data = await response.json();
+                
+                // Update stats
+                captureCount++;
+                totalDetections += data.detections.length;
+                totalProcessingTime += data.processing_time;
+                
+                // Draw bounding boxes on canvas (wait for image to load first)
+                setTimeout(() => {
+                    drawBoundingBoxes(data.detections);
+                }, 100);
+                
+                // Display results
+                displayResults(data);
+                
+                // Reset file input
+                fileInput.value = '';
+                
+            } catch (error) {
+                showError('Lỗi khi nhận diện: ' + error.message);
+                fileInput.value = '';
+            } finally {
+                loadingDiv.classList.remove('active');
+            }
+        }
+
+        // Display results
+        function displayResults(data) {
+            resultsDiv.style.display = 'block';
+            
+            if (data.detections.length === 0) {
+                resultsContent.innerHTML = `
+                    <div class="no-detection">
+                        <h2>🔍</h2>
+                        <p>Không phát hiện biển số xe trong ảnh</p>
+                        <p class="processing-time">Thời gian xử lý: ${data.processing_time.toFixed(2)}s</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            
+            data.detections.forEach((detection, index) => {
+                const confidence = (detection.confidence * 100).toFixed(2);
+                const plateNumber = detection.plate_number || detection.license_plate || 'N/A';
+                html += `
+                    <div class="detection-card">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="color: #6c757d; margin-bottom: 5px;">Biển số #${index + 1}</div>
+                                <div class="license-plate-number">${plateNumber}</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div class="confidence">✅ ${confidence}%</div>
+                                <div style="color: #6c757d; margin-top: 5px; font-size: 0.9em;">
+                                    Vị trí: [${detection.bbox.map(v => v.toFixed(0)).join(', ')}]
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value">${data.detections.length}</div>
+                        <div class="stat-label">Biển số phát hiện</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">${data.processing_time.toFixed(2)}s</div>
+                        <div class="stat-label">Thời gian xử lý</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">${captureCount}</div>
+                        <div class="stat-label">Tổng số lần chụp</div>
+                    </div>
+                </div>
+            `;
+            
+            resultsContent.innerHTML = html;
+        }
+
+        // Show error
+        function showError(message) {
+            errorDiv.innerHTML = `<div class="error">❌ ${message}</div>`;
+            setTimeout(() => errorDiv.innerHTML = '', 5000);
+        }
+
+        // Clear error
+        function clearError() {
+            errorDiv.innerHTML = '';
+        }
+
+        // Show message
+        function showMessage(message, type = 'info') {
+            const bgColor = type === 'success' ? '#d4edda' : '#d1ecf1';
+            const textColor = type === 'success' ? '#155724' : '#0c5460';
+            errorDiv.innerHTML = `
+                <div style="background: ${bgColor}; color: ${textColor}; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    ${message}
+                </div>
+            `;
+            setTimeout(() => errorDiv.innerHTML = '', 5000);
+        }
+
+        // Event Listeners
+        startCameraBtn.addEventListener('click', startCamera);
+        stopCameraBtn.addEventListener('click', stopCamera);
+        captureBtn.addEventListener('click', captureAndRecognize);
+        autoCaptureBtn.addEventListener('click', toggleAutoCapture);
+        uploadBtn.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', handleFileUpload);
+
+        // Initialize
+        getCameras();
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            stopCamera();
+        });
+    </script>
+</body>
+</html>
