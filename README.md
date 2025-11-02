@@ -1,5 +1,12 @@
-# Tổng quan Project
-Đây là project Machine Learning nhằm nhận diện biển số xe từ hình ảnh, video và video trực tiếp từ camera.
+# Tổng quan
+Đây là project đồ án môn Machine Learning, thực hiện nhận diện biển số xe từ hình ảnh và video trực tiếp từ camera.
+
+# Thanh viên nhóm
+
+- Châu Trung Tín - 2410060248
+- Phạm Thiên Chương - 2410060300
+- Nguyễn Ngọc Duy - 2410060217
+- Phan Hữu Thiện - 2410060241
 
 # Mục tiêu Project
 Mục tiêu của project là nhận diện được ký tự trên biển số xe trong các điều kiện khác nhau như góc chụp, ánh sáng, chất lượng hình ảnh/video. Do đó, project sẽ bao gồm các tính năng chính sau:
