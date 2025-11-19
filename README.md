@@ -1,7 +1,7 @@
 # Tổng quan
 Đây là project đồ án môn Machine Learning, thực hiện nhận diện biển số xe từ hình ảnh và video trực tiếp từ camera.
 
-# Thanh viên nhóm
+# Thành viên nhóm
 
 - Châu Trung Tín - 2410060248
 - Phạm Thiên Chương - 2410060300
@@ -59,44 +59,30 @@ Dataset được chia 2 phần: training set (80%) và validation set (20%) đ�
 
 ### Chuẩn bị môi trường
 
-- Python 3.11
-- Poetry
+- [Python 3.11](https://www.python.org/downloads/release/python-3111/)
+- [Poetry](https://python-poetry.org/docs/#installation)
 
-### Cài đặt dependencies
+### Clone project
 
 ```bash
 git clone https://github.com/thienph/ML-license_plate_detection_recognition.git
 ```
 
+### Khởi chạy project
+
 **For Windows:**
 
 ```Powershell
-cd ML-license_plate_detection_recognition\backend
-.\scripts\setup_env.ps1
+cd ML-license_plate_detection_recognition
+.\run-project.ps1
 ```
 
 **For MacOS:**
 
 ```bash
-cd ML-license_plate_detection_recognition/backend
-./scripts/setup_env.sh
+cd ML-license_plate_detection_recognition
+chmod +x ./scripts/*.sh
+.run-project.sh
 ```
 
-### Chạy backend server
-
-**For Windows:**
-```Powershell
-cd ML-license_plate_detection_recognition\backend
-.\scripts\run_dev.ps1
-```
-
-**For MacOS:**
-
-```bash
-cd ML-license_plate_detection_recognition/backend
-./scripts/run_dev.sh
-```
-
-### Truy cập giao diện web
-
-Truy cập vào folder `frontend` và chạy file ``index.html`` bằng trình duyệt web.
+Nếu trang demo không tự động mở, hãy truy cập vào folder `frontend` và chạy file ``index.html`` bằng trình duyệt web.

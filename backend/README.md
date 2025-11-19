@@ -1,6 +1,6 @@
 # Backend Service
 
-This directory contains the source code for the backend service of License Plate Detection and Recognition.
+Cung cấp các API endpoint để xử lý yêu cầu từ frontend.
 
 ## Project Structure
 
@@ -32,6 +32,7 @@ This directory contains the source code for the backend service of License Plate
 
 ```bash
 # One-time setup
+chmod +x ./scripts/*.sh
 ./scripts/setup.sh
 
 # Start development server
@@ -57,7 +58,8 @@ This directory contains the source code for the backend service of License Plate
 ```
 
 ### Model Management
-Trained models are stored in the `app/models/` directory. Please copy your trained model files into this directory before starting the server.
+
+Model đã được huấn luyện được lưu trong thư mục `app/models/`. Vui lòng copy các file model đã huấn luyện vào thư mục này trước khi start backend.
 
 ### API Documentation
 Once the development server is running:
@@ -66,8 +68,11 @@ Once the development server is running:
 
 ## Dependency Management
 
-### Poetry (Single Source of Truth)
-We use Poetry exclusively for dependency management:
+### Poetry
+
+Sử dụng Poetry để quản lý dependencies và môi trường ảo.
+
+```bash:
 
 ```powershell
 # Install dependencies
@@ -84,12 +89,4 @@ poetry update
 
 # Generate lock file
 poetry lock
-```
-
-## Deployment
-
-### Docker Build & Run
-
-```
-docker build -t license-plate-api:latest .
 ```
