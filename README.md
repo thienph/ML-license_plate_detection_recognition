@@ -43,13 +43,9 @@ Với phạm vi của project, chúng ta cần phải có 2 model riêng biệt:
 
 Để huấn luyện các model, chúng ta cần chuẩn bị các dataset sau:
 
-- **Detection**: Dataset hình ảnh biển số xe để huấn luyện model nhận diện biển số xe. Dataset này bao gồm:
+**Detection**: Dataset hình ảnh biển số xe để huấn luyện model nhận diện biển số xe. Dataset này bao gồm:
 1. Các file hình ảnh các phương tiện có biển số xe, trong ảnh có biển số xe được khoanh vùng rõ ràng và đa dạng các góc chụp, điều kiện ánh sáng, kích thước.
 2. Các file nhãn (label) tương ứng với các hình ảnh, trong đó mỗi nhãn bao gồm tọa độ bounding box của biển số xe trong ảnh. 
-
-- **Recognition**: Dataset ký tự trên biển số xe để huấn luyện model OCR. Dataset này bao gồm:
-1. Các file hình ảnh chứa biển số xe, trong đó các ký tự trên biển số xe được khoanh vùng rõ ràng.
-2. Các file nhãn (label) tương ứng với các hình ảnh, trong đó mỗi nhãn bao gồm chuỗi ký tự tương ứng với biển số xe.
 
 Dataset được chia 2 phần: training set (80%) và validation set (20%) để đánh giá hiệu suất của model trong quá trình huấn luyện.
 
